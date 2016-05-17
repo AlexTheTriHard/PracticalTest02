@@ -5,13 +5,19 @@ package practicaltest02.pdsd.systems.cs.pub.ro.practicaltest02;
  */
 public class Timeapi {
     private String currentTime;
-
+    private String currentMinute;
     public Timeapi() {
         this.currentTime = null;
+        this.currentMinute = null;
     }
 
     public Timeapi(String currentTime) {
         this.currentTime = currentTime;
+    }
+
+    public Timeapi(String currentTime, String currentMinute) {
+        this.currentTime = currentTime;
+        this.currentMinute = currentMinute;
     }
 
     public void setCurrentTime(String temperature) {
@@ -21,6 +27,15 @@ public class Timeapi {
     public String getCurrentTime() {
         return this.currentTime;
     }
+
+    public void setCurrentMinute(String currentMinute) {
+        this.currentMinute = currentMinute;
+    }
+
+    public String getCurrentMinute() {
+        return this.currentMinute;
+    }
+
 
     @Override
     public String toString() {

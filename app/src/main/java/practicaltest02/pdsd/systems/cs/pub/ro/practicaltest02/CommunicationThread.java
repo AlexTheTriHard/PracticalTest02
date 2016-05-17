@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Calendar;
 import java.util.HashMap;
 
 /**
@@ -46,21 +47,45 @@ public class CommunicationThread extends Thread {
                     if (key != null && !key.isEmpty()&& value != null && !value.isEmpty()
                             && informationType != null && !informationType.isEmpty()) {
                         if (data.containsKey(key)) {
+                            Calendar rightNow = Calendar.getInstance();
+                            int minute = rightNow.get(Calendar.MINUTE);
                             Log.i(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the cache...");
                             timeInformation = data.get(key);
+                            String timeInfoMinute = timeInformation.getCurrentMinute();
+                            if(timeInfoMinute.equals(minute) == false) {
+                                try {
+                                    HttpClient httpClient = new DefaultHttpClient();
+                                    HttpGet httpget = new HttpGet("http://www.timeapi.org/utc/now");
+                                    ResponseHandler<String> responseHandler = new BasicResponseHandler();
+                                    String pageSourceCode = null;
+                                    pageSourceCode = httpClient.execute(httpget, responseHandler);
+                                    if (pageSourceCode != null) {
+                                        String crtMinute = pageSourceCode.substring(14, 16);
+                                        timeInformation = new Timeapi(pageSourceCode, crtMinute);
+                                        printWriter.println(pageSourceCode);
+                                        printWriter.flush();
+
+                                    }
+                                }
+                                    catch(IOException e){
+                                        e.printStackTrace();
+                                    }
+                                }
                             String result = timeInformation.toString();
                             printWriter.println(result);
                             printWriter.flush();
                             serverThread.setData(key, timeInformation);
                         } else {
+
+
                             Log.i(Constants.TAG, "[COMMUNICATION THREAD] Getting the information from the webservice...");
                             HttpClient httpClient = new DefaultHttpClient();
                             HttpGet httpget = new HttpGet("http://www.timeapi.org/utc/now");
                             ResponseHandler<String> responseHandler = new BasicResponseHandler();
                             String pageSourceCode = httpClient.execute(httpget, responseHandler);
-                            
                             if (pageSourceCode != null) {
-                                timeInformation = new Timeapi(pageSourceCode);
+                                String crtMinute = pageSourceCode.substring(14, 16);
+                                timeInformation = new Timeapi(pageSourceCode, crtMinute);
                                 printWriter.println(pageSourceCode);
                                 printWriter.flush();
                                 serverThread.setData(key, timeInformation);
